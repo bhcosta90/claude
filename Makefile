@@ -11,19 +11,27 @@ REPO_LOCK   := $(CLAUDE_DIR)/skills.lock.json
 SKILLS_JS   := node $(CLAUDE_DIR)/scripts/skills.mjs
 SKILLS_CLI  := npx -y skills
 
-# Argumentos soltos para skill-add/skill-remove:
+# Argumentos soltos (sem SKILL=, SRC= ou MSG=):
 #   make skill-add development/senior-qa          (origem padrão)
 #   make skill-add obra/superpowers brainstorming (origem informada)
-ifneq ($(filter $(firstword $(MAKECMDGOALS)),skill-add skill-remove),)
+#   make skill-remove senior-qa
+#   make save "feat(skills): add x"               (aspas opcionais)
+POSITIONAL_TARGETS := skill-add skill-remove save
+ifneq ($(filter $(firstword $(MAKECMDGOALS)),$(POSITIONAL_TARGETS)),)
   ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  ifeq ($(words $(ARGS)),2)
+  ifeq ($(firstword $(MAKECMDGOALS)),save)
+    ifneq ($(ARGS),)
+      MSG := $(ARGS)
+    endif
+  else ifeq ($(words $(ARGS)),2)
     SRC   := $(word 1,$(ARGS))
     SKILL := $(word 2,$(ARGS))
   else ifeq ($(words $(ARGS)),1)
     SKILL := $(ARGS)
   endif
   # Impede o make de tratar os argumentos como alvos
-  $(eval $(ARGS):;@:)
+  %:
+	@:
 endif
 
 # Origem padrão do `make skill-add` (a mesma do `npx claude-code-templates`)
@@ -101,8 +109,9 @@ skills-check: ## Avisa se há skills externas instaladas e ainda não sincroniza
 status: skills-check ## Mostra alterações locais ainda não enviadas ao repo
 	@git -C "$(CLAUDE_DIR)" status --short --branch
 
-save: skills-check ## Commita e envia tudo que mudou (uso: make save MSG="mensagem")
-	@test -n "$(MSG)" || { echo 'Informe a mensagem: make save MSG="..."'; exit 1; }
+save: export COMMIT_MSG = $(MSG)
+save: skills-check ## Commita e envia tudo que mudou (make save "mensagem")
+	@test -n "$$COMMIT_MSG" || { echo 'Uso: make save "mensagem do commit"'; exit 1; }
 	git -C "$(CLAUDE_DIR)" add -A
-	git -C "$(CLAUDE_DIR)" commit -m "$(MSG)"
+	git -C "$(CLAUDE_DIR)" commit -m "$$COMMIT_MSG"
 	git -C "$(CLAUDE_DIR)" push origin $(BRANCH)
