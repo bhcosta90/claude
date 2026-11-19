@@ -11,6 +11,21 @@ REPO_LOCK   := $(CLAUDE_DIR)/skills.lock.json
 SKILLS_JS   := node $(CLAUDE_DIR)/scripts/skills.mjs
 SKILLS_CLI  := npx -y skills
 
+# Argumentos soltos para skill-add/skill-remove:
+#   make skill-add development/senior-qa          (origem padrão)
+#   make skill-add obra/superpowers brainstorming (origem informada)
+ifneq ($(filter $(firstword $(MAKECMDGOALS)),skill-add skill-remove),)
+  ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  ifeq ($(words $(ARGS)),2)
+    SRC   := $(word 1,$(ARGS))
+    SKILL := $(word 2,$(ARGS))
+  else ifeq ($(words $(ARGS)),1)
+    SKILL := $(ARGS)
+  endif
+  # Impede o make de tratar os argumentos como alvos
+  $(eval $(ARGS):;@:)
+endif
+
 # Origem padrão do `make skill-add` (a mesma do `npx claude-code-templates`)
 SRC ?= davila7/claude-code-templates
 # Aceita "categoria/nome" (formato do claude-code-templates) ou só "nome"
@@ -39,13 +54,13 @@ link-repo: ## Transforma o ~/.claude em clone do repo sem sobrescrever arquivos 
 		git -C "$(CLAUDE_DIR)" status --short; \
 	fi
 
-skill-add: ## Instala uma skill externa e sincroniza (make skill-add SKILL=development/senior-qa [SRC=dono/repo])
-	@test -n "$(SKILL)" || { echo 'Uso: make skill-add SKILL=<categoria/nome ou nome> [SRC=dono/repo]'; exit 1; }
+skill-add: ## Instala uma skill externa e sincroniza (make skill-add [dono/repo] <categoria/nome>)
+	@test -n "$(SKILL)" || { echo 'Uso: make skill-add [dono/repo] <categoria/nome ou nome>'; exit 1; }
 	$(SKILLS_CLI) add $(SRC) --skill $(SKILL_NAME) -g -a claude-code -y < /dev/null
 	@$(MAKE) -s skills-sync
 
-skill-remove: ## Remove uma skill externa e sincroniza (make skill-remove SKILL=senior-qa)
-	@test -n "$(SKILL)" || { echo 'Uso: make skill-remove SKILL=<nome>'; exit 1; }
+skill-remove: ## Remove uma skill externa e sincroniza (make skill-remove <nome>)
+	@test -n "$(SKILL)" || { echo 'Uso: make skill-remove <nome>'; exit 1; }
 	$(SKILLS_CLI) remove $(SKILL_NAME) -g -y < /dev/null
 	@$(MAKE) -s skills-sync
 
