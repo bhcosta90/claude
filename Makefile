@@ -5,6 +5,7 @@ BRANCH     ?= main
 # Skills de terceiros: a fonte da verdade é o skills.lock.json, cópia versionada
 # do lock que o `npx skills` mantém em ~/.agents/.skill-lock.json.
 # Instalou ou removeu uma skill com `npx skills`? Rode `make skills-sync`.
+# Skills próprias ficam em skills/ e precisam ser liberadas no .gitignore.
 AGENTS_LOCK := $(HOME)/.agents/.skill-lock.json
 REPO_LOCK   := $(CLAUDE_DIR)/skills.lock.json
 SKILLS_JS   := node $(CLAUDE_DIR)/scripts/skills.mjs
@@ -34,7 +35,7 @@ link-repo: ## Transforma o ~/.claude em clone do repo sem sobrescrever arquivos 
 	fi
 
 skills-install: ## Instala as skills externas registradas no skills.lock.json
-	@$(SKILLS_JS) list | while read -r source skill; do \
+	@$(SKILLS_JS) | while read -r source skill; do \
 		echo "==> $$skill ($$source)"; \
 		$(SKILLS_CLI) add $$source --skill $$skill -g -a claude-code -y < /dev/null || exit 1; \
 	done
@@ -53,8 +54,7 @@ skills-sync: ## Registra as skills externas instaladas e faz commit + push diret
 	@test -f "$(AGENTS_LOCK)" || { echo "Não encontrei $(AGENTS_LOCK)."; exit 1; }
 	git -C "$(CLAUDE_DIR)" pull -q --ff-only origin $(BRANCH)
 	cp "$(AGENTS_LOCK)" "$(REPO_LOCK)"
-	$(SKILLS_JS) gitignore
-	git -C "$(CLAUDE_DIR)" add skills.lock.json .gitignore
+	git -C "$(CLAUDE_DIR)" add skills.lock.json
 	@if git -C "$(CLAUDE_DIR)" diff --cached --quiet; then \
 		echo "Nenhuma skill nova ou removida."; \
 	else \

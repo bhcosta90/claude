@@ -7,19 +7,17 @@
 !memory/
 !memory/**
 
+# Skills: só as próprias são versionadas.
+# As de terceiros vêm do skills.lock.json (make skills-install).
 !skills/
-!skills/**
+skills/*
+!skills/docs-feature/
+!skills/docs-feature/**
+!skills/commit/
+!skills/commit/**
 
 !CLAUDE.md
 !Makefile
 !skills.lock.json
 !scripts/
 !scripts/**
-
-# Skills sincronizadas pelo próprio Claude
-skills/synced/
-
-# >>> skills externas (gerado por `make skills-sync`, não editar)
-skills/brainstorming/
-skills/find-skills/
-# <<< skills externas
