@@ -18,6 +18,7 @@ skills/*
 
 !CLAUDE.md
 !Makefile
+!README.md
 !skills.lock.json
 !scripts/
 !scripts/**
