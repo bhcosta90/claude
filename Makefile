@@ -11,8 +11,13 @@ REPO_LOCK   := $(CLAUDE_DIR)/skills.lock.json
 SKILLS_JS   := node $(CLAUDE_DIR)/scripts/skills.mjs
 SKILLS_CLI  := npx -y skills
 
+# Origem padrão do `make skill-add` (a mesma do `npx claude-code-templates`)
+SRC ?= davila7/claude-code-templates
+# Aceita "categoria/nome" (formato do claude-code-templates) ou só "nome"
+SKILL_NAME = $(notdir $(SKILL))
+
 .DEFAULT_GOAL := help
-.PHONY: help install link-repo skills-install update skills-update skills-sync skills-check status save
+.PHONY: help install link-repo skill-add skill-remove skills-install update skills-update skills-sync skills-check status save
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -33,6 +38,16 @@ link-repo: ## Transforma o ~/.claude em clone do repo sem sobrescrever arquivos 
 		echo "$(CLAUDE_DIR) ligado a $(REPO) ($(BRANCH))."; \
 		git -C "$(CLAUDE_DIR)" status --short; \
 	fi
+
+skill-add: ## Instala uma skill externa e sincroniza (make skill-add SKILL=development/senior-qa [SRC=dono/repo])
+	@test -n "$(SKILL)" || { echo 'Uso: make skill-add SKILL=<categoria/nome ou nome> [SRC=dono/repo]'; exit 1; }
+	$(SKILLS_CLI) add $(SRC) --skill $(SKILL_NAME) -g -a claude-code -y < /dev/null
+	@$(MAKE) -s skills-sync
+
+skill-remove: ## Remove uma skill externa e sincroniza (make skill-remove SKILL=senior-qa)
+	@test -n "$(SKILL)" || { echo 'Uso: make skill-remove SKILL=<nome>'; exit 1; }
+	$(SKILLS_CLI) remove $(SKILL_NAME) -g -y < /dev/null
+	@$(MAKE) -s skills-sync
 
 skills-install: ## Instala as skills externas registradas no skills.lock.json
 	@$(SKILLS_JS) | while read -r source skill; do \
