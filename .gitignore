@@ -11,3 +11,10 @@
 !skills/**
 
 !CLAUDE.md
+!Makefile
+
+# Skills de terceiros (instaladas com `make skills-install`)
+skills/brainstorming/
+skills/find-skills/
+# Skills sincronizadas pelo próprio Claude
+skills/synced/
