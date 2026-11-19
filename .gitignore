@@ -12,9 +12,14 @@
 
 !CLAUDE.md
 !Makefile
+!skills.lock.json
+!scripts/
+!scripts/**
 
-# Skills de terceiros (instaladas com `make skills-install`)
-skills/brainstorming/
-skills/find-skills/
 # Skills sincronizadas pelo próprio Claude
 skills/synced/
+
+# >>> skills externas (gerado por `make skills-sync`, não editar)
+skills/brainstorming/
+skills/find-skills/
+# <<< skills externas

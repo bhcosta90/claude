@@ -1,0 +1,26 @@
+{
+  "version": 3,
+  "skills": {
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "skillFolderHash": "ebd5b1afb600976b12a4c07fedd9c408c1e82f97",
+      "installedAt": "2026-11-05T12:38:14.422Z",
+      "updatedAt": "2026-11-05T12:38:14.422Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
+      "installedAt": "2026-11-05T12:38:17.530Z",
+      "updatedAt": "2026-11-05T12:38:17.530Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  }
+}

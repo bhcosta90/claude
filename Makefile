@@ -2,16 +2,16 @@ CLAUDE_DIR ?= $(HOME)/.claude
 REPO       ?= git@github.com:bhcosta90/claude.git
 BRANCH     ?= main
 
-# Skills de terceiros: "<repositório-github>:<nome-da-skill>"
-# Instaladas via `npx skills` e ignoradas pelo git (ver .gitignore).
-EXTERNAL_SKILLS := \
-	obra/superpowers:brainstorming \
-	vercel-labs/skills:find-skills
-
-SKILLS_CLI := npx -y skills
+# Skills de terceiros: a fonte da verdade é o skills.lock.json, cópia versionada
+# do lock que o `npx skills` mantém em ~/.agents/.skill-lock.json.
+# Instalou ou removeu uma skill com `npx skills`? Rode `make skills-sync`.
+AGENTS_LOCK := $(HOME)/.agents/.skill-lock.json
+REPO_LOCK   := $(CLAUDE_DIR)/skills.lock.json
+SKILLS_JS   := node $(CLAUDE_DIR)/scripts/skills.mjs
+SKILLS_CLI  := npx -y skills
 
 .DEFAULT_GOAL := help
-.PHONY: help install link-repo skills-install update skills-update status save
+.PHONY: help install link-repo skills-install update skills-update skills-sync skills-check status save
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -33,24 +33,45 @@ link-repo: ## Transforma o ~/.claude em clone do repo sem sobrescrever arquivos 
 		git -C "$(CLAUDE_DIR)" status --short; \
 	fi
 
-skills-install: ## Instala as skills externas listadas em EXTERNAL_SKILLS
-	@for item in $(EXTERNAL_SKILLS); do \
-		repo=$${item%%:*}; skill=$${item##*:}; \
-		echo "==> $$skill ($$repo)"; \
-		$(SKILLS_CLI) add $$repo --skill $$skill -g -a claude-code -y || exit 1; \
+skills-install: ## Instala as skills externas registradas no skills.lock.json
+	@$(SKILLS_JS) list | while read -r source skill; do \
+		echo "==> $$skill ($$source)"; \
+		$(SKILLS_CLI) add $$source --skill $$skill -g -a claude-code -y < /dev/null || exit 1; \
 	done
 
 update: ## Atualiza o repo (git pull) e as skills externas
 	git -C "$(CLAUDE_DIR)" pull --ff-only origin $(BRANCH)
+	$(MAKE) skills-install
 	$(MAKE) skills-update
 
 skills-update: ## Atualiza só as skills externas
 	$(SKILLS_CLI) update -g -y
 
-status: ## Mostra alterações locais ainda não enviadas ao repo
+skills-sync: ## Registra as skills externas instaladas e faz commit + push direto na main
+	@test "$$(git -C "$(CLAUDE_DIR)" branch --show-current)" = "$(BRANCH)" || { \
+		echo "Mude para a $(BRANCH) antes: git -C $(CLAUDE_DIR) checkout $(BRANCH)"; exit 1; }
+	@test -f "$(AGENTS_LOCK)" || { echo "Não encontrei $(AGENTS_LOCK)."; exit 1; }
+	git -C "$(CLAUDE_DIR)" pull -q --ff-only origin $(BRANCH)
+	cp "$(AGENTS_LOCK)" "$(REPO_LOCK)"
+	$(SKILLS_JS) gitignore
+	git -C "$(CLAUDE_DIR)" add skills.lock.json .gitignore
+	@if git -C "$(CLAUDE_DIR)" diff --cached --quiet; then \
+		echo "Nenhuma skill nova ou removida."; \
+	else \
+		git -C "$(CLAUDE_DIR)" commit -q -m "chore(skills): sync external skills" && \
+		git -C "$(CLAUDE_DIR)" push -q origin $(BRANCH) && \
+		echo "Skills externas sincronizadas e enviadas para a $(BRANCH)."; \
+	fi
+
+skills-check: ## Avisa se há skills externas instaladas e ainda não sincronizadas
+	@if [ -f "$(AGENTS_LOCK)" ] && ! cmp -s "$(AGENTS_LOCK)" "$(REPO_LOCK)"; then \
+		echo "Atenção: há skills externas não sincronizadas. Rode: make skills-sync"; \
+	fi
+
+status: skills-check ## Mostra alterações locais ainda não enviadas ao repo
 	@git -C "$(CLAUDE_DIR)" status --short --branch
 
-save: ## Commita e envia tudo que mudou (uso: make save MSG="mensagem")
+save: skills-check ## Commita e envia tudo que mudou (uso: make save MSG="mensagem")
 	@test -n "$(MSG)" || { echo 'Informe a mensagem: make save MSG="..."'; exit 1; }
 	git -C "$(CLAUDE_DIR)" add -A
 	git -C "$(CLAUDE_DIR)" commit -m "$(MSG)"
