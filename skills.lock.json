@@ -18,6 +18,37 @@
       "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
       "installedAt": "2026-11-05T12:38:17.530Z",
       "updatedAt": "2026-11-05T12:38:17.530Z"
+    },
+    "senior-qa": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/davila7/claude-code-templates.git",
+      "commit": "915ebd2c8ff332955104345472dd43bb5018771d",
+      "skillPath": "cli-tool/components/skills/development/senior-qa/SKILL.md",
+      "skillFolderHash": "052cd25f1be746c9451bc6eb95b4183e34c52bab",
+      "installedAt": "2026-11-19T20:38:20.001Z",
+      "updatedAt": "2026-11-19T20:38:20.001Z"
+    },
+    "laravel-expert": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/davila7/claude-code-templates.git",
+      "commit": "915ebd2c8ff332955104345472dd43bb5018771d",
+      "skillPath": "cli-tool/components/skills/development/laravel-expert/SKILL.md",
+      "skillFolderHash": "7d6c47941f442b9c3563a9a396005004f60992ef",
+      "installedAt": "2026-11-19T20:38:26.001Z",
+      "updatedAt": "2026-11-19T20:38:26.001Z"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "skillFolderHash": "d79e2a5bb4df4a386c2adcdd9ab8709bba28c3f6",
+      "pluginName": "example-skills",
+      "installedAt": "2026-11-19T20:38:28.933Z",
+      "updatedAt": "2026-11-19T20:38:28.933Z"
     }
   },
   "dismissed": {
