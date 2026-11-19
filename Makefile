@@ -2,8 +2,8 @@ CLAUDE_DIR ?= $(HOME)/.claude
 REPO       ?= git@github.com:bhcosta90/claude.git
 BRANCH     ?= main
 
-# Skills de terceiros: a fonte da verdade é o skills.lock.json, cópia versionada
-# do lock que o `npx skills` mantém em ~/.agents/.skill-lock.json.
+# Skills de terceiros: a fonte da verdade é o skills.lock.json, com nome e origem
+# das skills do lock que o `npx skills` mantém em ~/.agents/.skill-lock.json.
 # Instalou ou removeu uma skill com `npx skills`? Rode `make skills-sync`.
 # Skills próprias ficam em skills/ e precisam ser liberadas no .gitignore.
 AGENTS_LOCK := $(HOME)/.agents/.skill-lock.json
@@ -68,7 +68,7 @@ skills-sync: ## Registra as skills externas instaladas e faz commit + push diret
 		echo "Mude para a $(BRANCH) antes: git -C $(CLAUDE_DIR) checkout $(BRANCH)"; exit 1; }
 	@test -f "$(AGENTS_LOCK)" || { echo "Não encontrei $(AGENTS_LOCK)."; exit 1; }
 	git -C "$(CLAUDE_DIR)" pull -q --ff-only origin $(BRANCH)
-	cp "$(AGENTS_LOCK)" "$(REPO_LOCK)"
+	$(SKILLS_JS) snapshot > "$(REPO_LOCK)"
 	git -C "$(CLAUDE_DIR)" add skills.lock.json
 	@if git -C "$(CLAUDE_DIR)" diff --cached --quiet; then \
 		echo "Nenhuma skill nova ou removida."; \
@@ -79,7 +79,7 @@ skills-sync: ## Registra as skills externas instaladas e faz commit + push diret
 	fi
 
 skills-check: ## Avisa se há skills externas instaladas e ainda não sincronizadas
-	@if [ -f "$(AGENTS_LOCK)" ] && ! cmp -s "$(AGENTS_LOCK)" "$(REPO_LOCK)"; then \
+	@if [ -f "$(AGENTS_LOCK)" ] && ! $(SKILLS_JS) snapshot | cmp -s - "$(REPO_LOCK)"; then \
 		echo "Atenção: há skills externas não sincronizadas. Rode: make skills-sync"; \
 	fi
 
