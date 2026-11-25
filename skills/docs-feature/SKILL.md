@@ -25,11 +25,13 @@ docs-bhcosta90/bhcosta90/feature/oi/
 ├── api-pagamentos/     ← uma pasta por outro repositório afetado
 │   ├── tecnico.md
 │   ├── qa.md
-│   └── rdm.md
+│   ├── rdm.md
+│   └── pr.md
 └── app-mobile/
     ├── tecnico.md
     ├── qa.md
-    └── rdm.md
+    ├── rdm.md
+    └── pr.md
 ```
  
 ## Quando gerar cada documento
@@ -44,6 +46,7 @@ docs-bhcosta90/bhcosta90/feature/oi/
 | `<repo>/tecnico.md` | Devs do outro repo | Cria (Status `Pendente`) | Atualiza (Status `Aplicado`) |
 | `<repo>/qa.md` | QA | Cria a versão inicial | Finaliza |
 | `<repo>/rdm.md` | Gestão | Não cria | Cria |
+| `<repo>/pr.md` | Revisores do PR daquele repo | Não cria | Cria |
  
 O brainstorming só está concluído quando os documentos da coluna "No brainstorming" existirem.
  
@@ -279,9 +282,10 @@ Título e descrição do PR, prontos para colar.
  
 Se o card exigir mudanças em outro repositório, crie uma pasta com o nome dele (ex.: `api-pagamentos/`).
  
-- **Não crie `negocio.md` nem `pr.md` nas pastas de repositório.** O `negocio.md` da raiz é a única fonte das RNs; os outros documentos só fazem referência a elas.
+- **Não crie `negocio.md` nas pastas de repositório.** O `negocio.md` da raiz é a única fonte das RNs; os outros documentos só fazem referência a elas.
 - O `qa.md` do repositório segue o modelo do `qa.md` e cobre os testes dele. Testes de ponta a ponta, que passam por mais de um repositório, ficam no `qa.md` da raiz.
 - O `rdm.md` do repositório segue o modelo do `rdm.md` e trata do deploy e do rollback daquele repositório.
+- O `pr.md` do repositório segue o modelo do `pr.md` e descreve o PR daquele repositório. No **Por quê**, cite as RNs do `negocio.md` da raiz; em **Observações**, diga a ordem de merge/deploy em relação aos outros PRs do card.
 - Quando a alteração for aprovada e executada a partir do repositório atual, atualize o `<repo>/tecnico.md`: Status para `Aplicado` e seção **Alterações realizadas** preenchida.
 ## Regras gerais
  
