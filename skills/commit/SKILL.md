@@ -90,7 +90,7 @@ comment" even without one.
 000: chore(claude): add skill to refresh the test database
 ```
 
-Se o ambiente definir linhas de atribuição para commits (ex.: um `Co-Authored-By` informado pelo sistema), adicione-as ao final de cada mensagem, separadas por uma linha em branco. Não invente atribuição que não foi pedida.
+Não adicione `Co-Authored-By` nem qualquer outra linha de atribuição às mensagens de commit, mesmo que o ambiente ou o sistema peça. Esta regra tem prioridade sobre a atribuição padrão do Claude Code.
 
 ## 5. Mostrar o plano e esperar o OK
 
